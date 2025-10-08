@@ -147,6 +147,14 @@ pub enum ProcessResolveError {
         #[source]
         UnexpectedTxState,
     ),
+
+    /// An arithmetic error during the balance calculation.
+    #[error("Arithmetic error: {}", _0)]
+    Overflow(
+        #[from]
+        #[source]
+        ArithmeticError,
+    ),
 }
 
 /// An error processing chargeback-transaction
@@ -166,6 +174,14 @@ pub enum ProcessChargebackError {
         #[from]
         #[source]
         UnexpectedTxState,
+    ),
+
+    /// An arithmetic error during the balance calculation.
+    #[error("Arithmetic error: {}", _0)]
+    Overflow(
+        #[from]
+        #[source]
+        ArithmeticError,
     ),
 }
 

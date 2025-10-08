@@ -56,6 +56,17 @@ use crate::{engine::Engine, input::Tx};
     t::d(1, 1, "1.0"),
     t::di(2, 1),
 ]; "case-11")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::di(1, 1),
+    t::re(1, 1),
+]; "case-12")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::w(1, 2, "1.0"),
+    t::di(1, 1),
+    t::re(1, 1),
+]; "case-13")]
 fn process_transactions(transactions: impl IntoIterator<Item = Tx>) {
     let case_name = std::thread::current()
         .name()
@@ -127,15 +138,15 @@ mod t {
             kind: TxKind::Dispute,
         }
     }
-    // pub(crate) fn re(client_id: u16, tx_id: u32) -> Tx {
-    //     let client_id = client_id.into();
-    //     let tx_id = tx_id.into();
-    //     Tx {
-    //         client_id,
-    //         tx_id,
-    //         kind: TxKind::Resolve,
-    //     }
-    // }
+    pub(crate) fn re(client_id: u16, tx_id: u32) -> Tx {
+        let client_id = client_id.into();
+        let tx_id = tx_id.into();
+        Tx {
+            client_id,
+            tx_id,
+            kind: TxKind::Resolve,
+        }
+    }
     // pub(crate) fn cb(client_id: u16, tx_id: u32) -> Tx {
     //     let client_id = client_id.into();
     //     let tx_id = tx_id.into();

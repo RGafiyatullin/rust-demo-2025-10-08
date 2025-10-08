@@ -26,7 +26,7 @@ struct Balance {
     withdrawn: NonNegativeAmount,
 
     disputed: NonNegativeAmount,
-    released: NonNegativeAmount,
+    resolved: NonNegativeAmount,
     chargedback: NonNegativeAmount,
 }
 
@@ -188,8 +188,43 @@ impl Engine {
         client_id: ClientId,
         tx_id: TxId,
     ) -> Result<(), ProcessResolveError> {
-        let _ = (client_id, tx_id);
-        unimplemented!()
+        let transaction = self
+            .transactions
+            .get_mut(&tx_id)
+            .ok_or(UnknownTxId(tx_id))?;
+        let TxState::Disputed {
+            amount_disputed,
+            client_id: expected_client_id,
+        } = *transaction
+        else {
+            return Err(UnexpectedTxState.into());
+        };
+        if client_id != expected_client_id {
+            return Err(UnexpectedTxState.into());
+        }
+
+        let Occupied(mut balance) = self.balances.entry(client_id) else {
+            panic!("disputed account shouldn't have been pruned")
+        };
+
+        balance.get_mut().resolved = {
+            let total_resolved: Amount = balance.get().resolved.into();
+            let amount_disputed: Amount = amount_disputed.into();
+
+            total_resolved.cadd(amount_disputed)?.try_into().expect(
+                "sum of a non-negative and a positive, overflow handled; should be positive",
+            )
+        };
+        *transaction = TxState::Deposited {
+            amount_deposited: amount_disputed,
+            client_id,
+        };
+
+        if balance.get().can_be_pruned() {
+            let _ = balance.remove();
+        }
+
+        Ok(())
     }
 
     fn process_chargeback(
@@ -207,7 +242,7 @@ impl Balance {
         let de: Amount = self.deposited.into();
         let wi: Amount = self.withdrawn.into();
         let di: Amount = self.disputed.into();
-        let re: Amount = self.released.into();
+        let re: Amount = self.resolved.into();
         let ch: Amount = self.chargedback.into();
 
         de.saturating_sub(wi)
@@ -220,7 +255,7 @@ impl Balance {
         // let de: Amount = self.deposited.into();
         // let wi: Amount = self.withdrawn.into();
         let di: Amount = self.disputed.into();
-        let re: Amount = self.released.into();
+        let re: Amount = self.resolved.into();
         let ch: Amount = self.chargedback.into();
 
         di.saturating_sub(re)
