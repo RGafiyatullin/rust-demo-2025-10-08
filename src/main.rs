@@ -18,6 +18,10 @@ fn run() -> Result<(), AnyError> {
         Engine::default()
     };
 
+    if env::var("ACCOUNT_PRUNING_ENABLED").is_ok_and(|v| v == "1") {
+        engine.set_account_pruning(true);
+    }
+
     let Some(input) = env::args().nth(1) else {
         return Err("exactly one argument expected".into());
     };

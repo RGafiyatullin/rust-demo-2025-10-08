@@ -24,6 +24,7 @@ pub struct Engine {
     balances: HashMap<ClientId, Balance>,
     transactions: HashMap<TxId, TxState>,
     evictable_txs: RawLRU<TxId, ()>,
+    account_pruning_enabled: bool,
 }
 
 #[derive(Debug, Default)]
@@ -63,7 +64,13 @@ impl Engine {
             balances: Default::default(),
             transactions: Default::default(),
             evictable_txs: RawLRU::new(cache_size).expect("couldn't create RawLRU"),
+            account_pruning_enabled: false,
         }
+    }
+
+    /// Choose whether the "empty" accounts are pruned
+    pub fn set_account_pruning(&mut self, enabled: bool) {
+        self.account_pruning_enabled = enabled;
     }
 
     /// Iterate over all stored balances
@@ -170,7 +177,7 @@ impl Engine {
             )
         };
         tx.insert(TxState::Withdrawn);
-        if balance.get().can_be_pruned() {
+        if self.account_pruning_enabled && balance.get().can_be_pruned() {
             let _ = balance.remove();
         }
 
@@ -255,7 +262,7 @@ impl Engine {
             client_id,
         };
 
-        if balance.get().can_be_pruned() {
+        if self.account_pruning_enabled && balance.get().can_be_pruned() {
             let _ = balance.remove();
         }
 
