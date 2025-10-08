@@ -22,10 +22,12 @@ pub struct Engine {
 
 #[derive(Debug, Default)]
 struct Balance {
-    total: NonNegativeAmount,
-    held: NonNegativeAmount,
+    deposited: NonNegativeAmount,
+    withdrawn: NonNegativeAmount,
 
-    is_locked: bool,
+    disputed: NonNegativeAmount,
+    released: NonNegativeAmount,
+    chargedback: NonNegativeAmount,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -75,15 +77,13 @@ impl Engine {
         };
         let balance = self.balances.entry(client_id).or_default();
 
-        let new_total: NonNegativeAmount = {
-            let total: Amount = balance.total.into();
+        balance.deposited = {
+            let total_deposited: Amount = balance.deposited.into();
             let amount_deposited: Amount = amount_deposited.into();
-            total.cadd(amount_deposited)?.try_into().expect(
+            total_deposited.cadd(amount_deposited)?.try_into().expect(
                 "sum of a non-negative and a positive, overflow handled; should be positive",
             )
         };
-
-        balance.total = new_total;
         tx.insert(TxState::Deposited {
             amount_deposited,
             client_id,
@@ -104,7 +104,7 @@ impl Engine {
             self.transactions.entry(tx_id),
         ) {
             (_, Occupied(_)) => return Err(DuplicateTxId(tx_id).into()),
-            (Occupied(balance), Vacant(_)) if balance.get().is_locked => {
+            (Occupied(balance), Vacant(_)) if balance.get().is_locked() => {
                 return Err(AccountLocked(client_id).into());
             }
 
@@ -127,18 +127,15 @@ impl Engine {
         };
 
         assert!(Amount::from(balance.get().available()) >= Amount::from(amount_withdrawn));
-        assert!(!balance.get().is_locked);
+        assert!(!balance.get().is_locked());
 
-        let new_total: NonNegativeAmount = {
-            let total: Amount = balance.get().total.into();
+        balance.get_mut().withdrawn = {
+            let total_withdrawn: Amount = balance.get().withdrawn.into();
             let amount_withdrawn: Amount = amount_withdrawn.into();
-            total
-                .csub(amount_withdrawn)?
-                .try_into()
-                .expect("relying on available not to be greater than total")
+            total_withdrawn.cadd(amount_withdrawn)?.try_into().expect(
+                "sum of a non-negative and a positive, overflow handled; should be positive",
+            )
         };
-
-        balance.get_mut().total = new_total;
         tx.insert(TxState::Withdrawn);
 
         if balance.get().can_be_pruned() {
@@ -170,15 +167,14 @@ impl Engine {
         }
 
         let balance = self.balances.entry(client_id).or_default();
-        let new_held: NonNegativeAmount = {
-            let held: Amount = balance.held.into();
+        balance.disputed = {
+            let total_disputed: Amount = balance.disputed.into();
             let amount_disputed: Amount = amount_disputed.into();
 
-            held.cadd(amount_disputed)?
-                .try_into()
-                .expect("adding a non-negative and a positive; should produce a positive")
+            total_disputed.cadd(amount_disputed)?.try_into().expect(
+                "sum of a non-negative and a positive, overflow handled; should be positive",
+            )
         };
-        balance.held = new_held;
         *transaction = TxState::Disputed {
             client_id,
             amount_disputed,
@@ -208,31 +204,49 @@ impl Engine {
 
 impl Balance {
     fn available(&self) -> Amount {
-        let t: Amount = self.total.into();
-        let h: Amount = self.held.into();
+        let de: Amount = self.deposited.into();
+        let wi: Amount = self.withdrawn.into();
+        let di: Amount = self.disputed.into();
+        let re: Amount = self.released.into();
+        let ch: Amount = self.chargedback.into();
 
-        t.saturating_sub(h)
+        de.saturating_sub(wi)
+            .saturating_sub(ch)
+            .saturating_sub(di)
+            .saturating_add(re)
     }
 
-    #[cfg(test)]
     fn held(&self) -> NonNegativeAmount {
-        self.held
+        // let de: Amount = self.deposited.into();
+        // let wi: Amount = self.withdrawn.into();
+        let di: Amount = self.disputed.into();
+        let re: Amount = self.released.into();
+        let ch: Amount = self.chargedback.into();
+
+        di.saturating_sub(re)
+            .saturating_sub(ch)
+            .try_into()
+            .expect("re + ch <= di")
     }
 
-    #[cfg(test)]
-    fn total(&self) -> NonNegativeAmount {
-        self.total
+    fn total(&self) -> Amount {
+        let de: Amount = self.deposited.into();
+        let wi: Amount = self.withdrawn.into();
+        // let di: Amount = self.disputed.into();
+        // let re: Amount = self.released.into();
+        let ch: Amount = self.chargedback.into();
+
+        de.saturating_sub(wi).saturating_sub(ch)
     }
 
-    #[cfg(test)]
     fn is_locked(&self) -> bool {
-        self.is_locked
+        Amount::from(self.chargedback).signum() > 0
     }
 
     fn can_be_pruned(&self) -> bool {
-        !self.is_locked
-            && Amount::from(self.held).signum() == 0
-            && Amount::from(self.total).signum() == 0
+        !self.is_locked()
+            && Amount::from(self.held()).signum() == 0
+            && Amount::from(self.total()).signum() == 0
     }
 }
 
