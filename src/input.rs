@@ -38,6 +38,7 @@ pub enum TxKind {
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct TxDeposit {
     /// Amount being deposited
+    #[serde(rename = "amount")]
     pub amount_deposited: PositiveAmount,
 }
 
@@ -45,6 +46,7 @@ pub struct TxDeposit {
 #[derive(Debug, Clone, serde::Deserialize)]
 pub struct TxWithdrawal {
     /// Amount to withdraw
+    #[serde(rename = "amount")]
     pub amount_withdrawn: PositiveAmount,
 }
 

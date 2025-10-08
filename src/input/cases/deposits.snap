@@ -13,7 +13,7 @@ expression: output
             ),
             kind: Deposit(
                 TxDeposit {
-                    amount: PositiveAmount(
+                    amount_deposited: PositiveAmount(
                         1.0,
                     ),
                 },
@@ -30,7 +30,7 @@ expression: output
             ),
             kind: Deposit(
                 TxDeposit {
-                    amount: PositiveAmount(
+                    amount_deposited: PositiveAmount(
                         0.0,
                     ),
                 },
@@ -47,7 +47,7 @@ expression: output
             ),
             kind: Deposit(
                 TxDeposit {
-                    amount: PositiveAmount(
+                    amount_deposited: PositiveAmount(
                         -1.0,
                     ),
                 },
@@ -64,7 +64,7 @@ expression: output
             ),
             kind: Deposit(
                 TxDeposit {
-                    amount: PositiveAmount(
+                    amount_deposited: PositiveAmount(
                         1.0,
                     ),
                 },
@@ -81,7 +81,7 @@ expression: output
             ),
             kind: Deposit(
                 TxDeposit {
-                    amount: PositiveAmount(
+                    amount_deposited: PositiveAmount(
                         0.0,
                     ),
                 },
@@ -98,7 +98,7 @@ expression: output
             ),
             kind: Deposit(
                 TxDeposit {
-                    amount: PositiveAmount(
+                    amount_deposited: PositiveAmount(
                         -1.0,
                     ),
                 },
@@ -115,7 +115,7 @@ expression: output
             ),
             kind: Deposit(
                 TxDeposit {
-                    amount: PositiveAmount(
+                    amount_deposited: PositiveAmount(
                         1.0,
                     ),
                 },
@@ -132,7 +132,7 @@ expression: output
             ),
             kind: Deposit(
                 TxDeposit {
-                    amount: PositiveAmount(
+                    amount_deposited: PositiveAmount(
                         1.0001,
                     ),
                 },
@@ -149,7 +149,7 @@ expression: output
             ),
             kind: Deposit(
                 TxDeposit {
-                    amount: PositiveAmount(
+                    amount_deposited: PositiveAmount(
                         1.0001,
                     ),
                 },
@@ -166,7 +166,7 @@ expression: output
             ),
             kind: Deposit(
                 TxDeposit {
-                    amount: PositiveAmount(
+                    amount_deposited: PositiveAmount(
                         1.0001,
                     ),
                 },
@@ -183,7 +183,7 @@ expression: output
             ),
             kind: Deposit(
                 TxDeposit {
-                    amount: PositiveAmount(
+                    amount_deposited: PositiveAmount(
                         111111111111111.1,
                     ),
                 },
