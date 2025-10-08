@@ -1,4 +1,6 @@
 #![cfg_attr(not(debug_assertions), warn(missing_docs))]
 
-pub mod types;
+//! a simple transaction processor and balance keeper.
+
 pub mod input;
+pub mod types;
