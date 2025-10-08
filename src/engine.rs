@@ -1,23 +1,33 @@
 use std::collections::HashMap;
+use std::collections::hash_map::Entry::*;
 
 use crate::{
     input::{Tx, TxDeposit, TxKind, TxWithdrawal},
-    types::{ClientId, NonNegativeAmount, TxId},
+    types::{Amount, ClientId, NonNegativeAmount, PositiveAmount, TxId},
 };
 
 pub mod errors;
 
 use errors::*;
+use fixnum::ops::CheckedAdd;
 
 #[derive(Debug, Default)]
 pub struct Engine {
     balances: HashMap<ClientId, Balance>,
+    transactions: HashMap<TxId, TxState>,
 }
 
 #[derive(Debug, Default)]
 struct Balance {
     total: NonNegativeAmount,
     held: NonNegativeAmount,
+
+    is_locked: bool,
+}
+
+#[derive(Debug, Clone, Copy)]
+enum TxState {
+    Deposited { amount_deposited: PositiveAmount, client_id: ClientId, },
 }
 
 impl Engine {
@@ -46,7 +56,20 @@ impl Engine {
         tx_id: TxId,
         deposit: TxDeposit,
     ) -> Result<(), ProcessDepositError> {
-        unimplemented!()
+        let TxDeposit { amount_deposited } = deposit;
+        let Vacant(tx) = self.transactions.entry(tx_id) else { return Err(DuplicateTxId(tx_id).into()) };
+        let balance = self.balances.entry(client_id).or_default();
+
+        let new_total: NonNegativeAmount = {
+            let total: Amount = balance.total.into();
+            let amount_deposited: Amount = amount_deposited.into();
+            total.cadd(amount_deposited)?.try_into().expect("sum of a non-negative and a positive, overflow handled; should be positive")
+        };
+
+        balance.total = new_total;
+        tx.insert(TxState::Deposited { amount_deposited, client_id, });
+
+        Ok(())
     }
 
     fn process_withdrawal(

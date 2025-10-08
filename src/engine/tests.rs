@@ -5,6 +5,9 @@ use test_case::test_case;
 use crate::{engine::Engine, input::Tx};
 
 #[test_case([]; "baseline")]
+#[test_case([
+    t::d(1,1,"1.0"),
+]; "case-01")]
 fn process_transactions(transactions: impl IntoIterator<Item = Tx>) {
     let case_name = std::thread::current()
         .name()
@@ -39,7 +42,9 @@ mod t {
         types::{Amount, ClientId, PositiveAmount, TxId},
     };
 
-    pub(super) fn d(client_id: ClientId, tx_id: TxId, amount_deposited: &str) -> Tx {
+    pub(super) fn d(client_id: u16, tx_id: u32, amount_deposited: &str) -> Tx {
+        let client_id = client_id.into();
+        let tx_id = tx_id.into();
         let amount_deposited =
             PositiveAmount::try_from(Amount::from_str_exact(amount_deposited).unwrap()).unwrap();
         Tx {

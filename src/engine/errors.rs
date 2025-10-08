@@ -1,3 +1,7 @@
+use fixnum::ArithmeticError;
+
+use crate::types::TxId;
+
 #[derive(Debug, thiserror::Error)]
 pub enum ProcessTxError {
     #[error("{}", _0)]
@@ -37,7 +41,13 @@ pub enum ProcessTxError {
 }
 
 #[derive(Debug, thiserror::Error)]
-pub enum ProcessDepositError {}
+pub enum ProcessDepositError {
+    #[error("{}", _0)]
+    DuplicateTxId(#[from] #[source] DuplicateTxId),
+
+    #[error("Arithmetic error: {}", _0)]
+    Overflow(#[from] #[source] ArithmeticError),
+}
 
 #[derive(Debug, thiserror::Error)]
 pub enum ProcessWithdrawalError {}
@@ -50,3 +60,8 @@ pub enum ProcessResolveError {}
 
 #[derive(Debug, thiserror::Error)]
 pub enum ProcessChargebackError {}
+
+
+#[derive(Debug, thiserror::Error)]
+#[error("duplicate tx-id: {}", _0)]
+pub struct DuplicateTxId(pub TxId);

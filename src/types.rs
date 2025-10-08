@@ -73,6 +73,7 @@ pub struct NonNegativeAmount(
     Amount,
 );
 
+
 mod non_negative_amount {
     use super::*;
 
@@ -101,8 +102,6 @@ mod non_negative_amount {
 }
 
 mod positive_amount {
-    use serde::Deserializer;
-
     use super::*;
 
     #[derive(Debug, thiserror::Error)]
@@ -125,6 +124,47 @@ mod positive_amount {
         fn from(positive: PositiveAmount) -> Self {
             let PositiveAmount(amount) = positive;
             amount
+        }
+    }
+}
+
+
+
+
+mod client_id {
+    use std::fmt;
+
+    use crate::types::ClientId;
+
+    impl fmt::Display for ClientId {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            write!(f, "C:{}", self.0)
+        }
+    }
+
+    #[cfg(test)]
+    impl From<u16> for ClientId {
+        fn from(id: u16) -> Self {
+            Self(id)
+        }
+    }
+}
+
+mod tx_id {
+    use std::fmt;
+
+    use crate::types::TxId;
+
+    impl fmt::Display for TxId {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            write!(f, "T:{}", self.0)
+        }
+    }
+
+    #[cfg(test)]
+    impl From<u32> for TxId {
+        fn from(id: u32) -> Self {
+            Self(id)
         }
     }
 }
