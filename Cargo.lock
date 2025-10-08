@@ -65,11 +65,18 @@ version = "0.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c22d8864f7d3567e34adfdf65129987d742237f3c9f40bb1c2e1c9ab4cd0a889"
 dependencies = [
+ "i256",
  "itoa",
  "serde",
  "static_assertions",
  "typenum",
 ]
+
+[[package]]
+name = "i256"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1dc48514806bfbe544a76eab74197db879dbb783357b088bd09b5aa8c9119ee4"
 
 [[package]]
 name = "insta"

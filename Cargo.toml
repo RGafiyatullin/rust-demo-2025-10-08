@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 csv = "^1.3"
-fixnum = {version = "^0.9", features = ["i64", "serde"]}
+fixnum = {version = "^0.9", features = ["i128", "serde"]}
 serde = {version = "^1.0", features = ["derive"]}
 thiserror = "^2"
 
