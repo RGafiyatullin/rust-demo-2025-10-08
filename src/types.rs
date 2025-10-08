@@ -74,7 +74,7 @@ pub struct NonNegativeAmount(
 );
 
 mod non_negative_amount {
-    use std::fmt::{self, write};
+    use std::fmt;
 
     use super::*;
 

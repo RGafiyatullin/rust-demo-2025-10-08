@@ -1,9 +1,13 @@
+//! Error types
+
 use fixnum::ArithmeticError;
 
 use crate::types::{ClientId, NonNegativeAmount, TxId};
 
+/// An error processing a transaction of any supported kind.
 #[derive(Debug, thiserror::Error)]
 pub enum ProcessTxError {
+    /// See [`ProcessDepositError`]
     #[error("{}", _0)]
     Deposit(
         #[from]
@@ -11,6 +15,7 @@ pub enum ProcessTxError {
         ProcessDepositError,
     ),
 
+    /// See [`ProcessWithdrawalError`]
     #[error("{}", _0)]
     Withdrawal(
         #[from]
@@ -18,6 +23,7 @@ pub enum ProcessTxError {
         ProcessWithdrawalError,
     ),
 
+    /// See [`ProcessDisputeError`]
     #[error("{}", _0)]
     Dispute(
         #[from]
@@ -25,6 +31,7 @@ pub enum ProcessTxError {
         ProcessDisputeError,
     ),
 
+    /// See [`ProcessResolveError`]
     #[error("{}", _0)]
     Resolve(
         #[from]
@@ -32,6 +39,7 @@ pub enum ProcessTxError {
         ProcessResolveError,
     ),
 
+    /// See [`ProcessChargebackError`]
     #[error("{}", _0)]
     Chargeback(
         #[from]
@@ -40,8 +48,10 @@ pub enum ProcessTxError {
     ),
 }
 
+/// An error processing deposit-transaction
 #[derive(Debug, thiserror::Error)]
 pub enum ProcessDepositError {
+    /// See [`DuplicateTxId`]
     #[error("{}", _0)]
     DuplicateTxId(
         #[from]
@@ -49,6 +59,7 @@ pub enum ProcessDepositError {
         DuplicateTxId,
     ),
 
+    /// An arithmetic error during the balance calculation.
     #[error("Arithmetic error: {}", _0)]
     Overflow(
         #[from]
@@ -57,8 +68,10 @@ pub enum ProcessDepositError {
     ),
 }
 
+/// An error processing withdrawal-transaction
 #[derive(Debug, thiserror::Error)]
 pub enum ProcessWithdrawalError {
+    /// See [`DuplicateTxId`]
     #[error("{}", _0)]
     DuplicateTxId(
         #[from]
@@ -66,6 +79,7 @@ pub enum ProcessWithdrawalError {
         DuplicateTxId,
     ),
 
+    /// An arithmetic error during the balance calculation.
     #[error("Arithmetic error: {}", _0)]
     Overflow(
         #[from]
@@ -73,6 +87,7 @@ pub enum ProcessWithdrawalError {
         ArithmeticError,
     ),
 
+    /// See [`AccountLocked`]
     #[error("{}", _0)]
     AccountLocked(
         #[from]
@@ -80,23 +95,30 @@ pub enum ProcessWithdrawalError {
         AccountLocked,
     ),
 
+    /// The client does not have enough available funds to complete the
+    /// requested withdrwal.
     #[error("Insufficient funds: {} has {}", _0, _1)]
     InsufficientFunds(ClientId, NonNegativeAmount),
 }
 
+/// An error processing dispute-transaction
 #[derive(Debug, thiserror::Error)]
 pub enum ProcessDisputeError {}
 
+/// An error processing resolve-transaction
 #[derive(Debug, thiserror::Error)]
 pub enum ProcessResolveError {}
 
+/// An error processing chargeback-transaction
 #[derive(Debug, thiserror::Error)]
 pub enum ProcessChargebackError {}
 
+/// Transaction was rejected due to having a non-unique tx-id.
 #[derive(Debug, thiserror::Error)]
 #[error("duplicate tx-id: {}", _0)]
 pub struct DuplicateTxId(pub TxId);
 
+/// Transaction was rejected because the account it refers is locked.
 #[derive(Debug, thiserror::Error)]
 #[error("account locked: {}", _0)]
 pub struct AccountLocked(pub ClientId);

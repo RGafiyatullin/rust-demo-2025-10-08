@@ -1,3 +1,5 @@
+//! Processing transactions and keeping the balances.
+
 use std::collections::{HashMap, hash_map::Entry::*};
 
 use crate::{
@@ -10,6 +12,8 @@ pub mod errors;
 use errors::*;
 use fixnum::ops::{CheckedAdd, CheckedSub};
 
+/// Engine keeps balances, and changes them according to the processed
+/// transactions.
 #[derive(Debug, Default)]
 pub struct Engine {
     balances: HashMap<ClientId, Balance>,
@@ -26,6 +30,7 @@ struct Balance {
 
 #[derive(Debug, Clone, Copy)]
 enum TxState {
+    #[allow(dead_code)] // XXX
     Deposited {
         amount_deposited: PositiveAmount,
         client_id: ClientId,
@@ -34,6 +39,7 @@ enum TxState {
 }
 
 impl Engine {
+    /// Process a single transaction.
     pub fn process_tx(&mut self, tx: Tx) -> Result<(), ProcessTxError> {
         let Tx {
             client_id,
@@ -143,6 +149,7 @@ impl Engine {
         client_id: ClientId,
         tx_id: TxId,
     ) -> Result<(), ProcessDisputeError> {
+        let _ = (client_id, tx_id);
         unimplemented!()
     }
 
@@ -151,6 +158,7 @@ impl Engine {
         client_id: ClientId,
         tx_id: TxId,
     ) -> Result<(), ProcessResolveError> {
+        let _ = (client_id, tx_id);
         unimplemented!()
     }
 
@@ -159,6 +167,7 @@ impl Engine {
         client_id: ClientId,
         tx_id: TxId,
     ) -> Result<(), ProcessChargebackError> {
+        let _ = (client_id, tx_id);
         unimplemented!()
     }
 }

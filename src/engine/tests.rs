@@ -81,31 +81,31 @@ mod t {
         }
     }
 
-    pub(crate) fn di(client_id: u16, tx_id: u32) -> Tx {
-        let client_id = client_id.into();
-        let tx_id = tx_id.into();
-        Tx {
-            client_id,
-            tx_id,
-            kind: TxKind::Dispute,
-        }
-    }
-    pub(crate) fn re(client_id: u16, tx_id: u32) -> Tx {
-        let client_id = client_id.into();
-        let tx_id = tx_id.into();
-        Tx {
-            client_id,
-            tx_id,
-            kind: TxKind::Resolve,
-        }
-    }
-    pub(crate) fn cb(client_id: u16, tx_id: u32) -> Tx {
-        let client_id = client_id.into();
-        let tx_id = tx_id.into();
-        Tx {
-            client_id,
-            tx_id,
-            kind: TxKind::Chargeback,
-        }
-    }
+    // pub(crate) fn di(client_id: u16, tx_id: u32) -> Tx {
+    //     let client_id = client_id.into();
+    //     let tx_id = tx_id.into();
+    //     Tx {
+    //         client_id,
+    //         tx_id,
+    //         kind: TxKind::Dispute,
+    //     }
+    // }
+    // pub(crate) fn re(client_id: u16, tx_id: u32) -> Tx {
+    //     let client_id = client_id.into();
+    //     let tx_id = tx_id.into();
+    //     Tx {
+    //         client_id,
+    //         tx_id,
+    //         kind: TxKind::Resolve,
+    //     }
+    // }
+    // pub(crate) fn cb(client_id: u16, tx_id: u32) -> Tx {
+    //     let client_id = client_id.into();
+    //     let tx_id = tx_id.into();
+    //     Tx {
+    //         client_id,
+    //         tx_id,
+    //         kind: TxKind::Chargeback,
+    //     }
+    // }
 }
