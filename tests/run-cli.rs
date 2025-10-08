@@ -2,11 +2,12 @@ use std::{path::Path, process::Stdio};
 
 use test_case::test_case;
 
-#[test_case("empty")]
-#[test_case("case-01")]
-#[test_case("case-02")]
-#[test_case("case-03")]
-fn run_it(case_name: &str) {
+#[test_case(20, "empty")]
+#[test_case(20, "case-01")]
+#[test_case(20, "case-02")]
+#[test_case(20, "case-03")]
+#[test_case(3, "case-04")]
+fn run_it(lru_cache_size: usize, case_name: &str) {
     #[cfg(debug_assertions)]
     const RELEASE_OPT: Option<&str> = None;
     #[cfg(not(debug_assertions))]
@@ -22,6 +23,7 @@ fn run_it(case_name: &str) {
         .args(RELEASE_OPT)
         .arg("--")
         .arg(input_file)
+        .env("TX_LRU_SIZE", lru_cache_size.to_string())
         .stdin(Stdio::null())
         .stdout(Stdio::piped())
         .stderr(Stdio::inherit())

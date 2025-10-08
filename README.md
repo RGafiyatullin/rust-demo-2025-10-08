@@ -41,13 +41,13 @@ The engine keeps two types of entieis:
 - balances.
 - transactions.
 
-Balances are pruned when possible (i.e. zero-balance, no funds held, not locked).
+If env `ACCOUNT_PRUNING_ENABLED=1` is set, balances are pruned when possible (i.e. zero-balance, no funds held, not locked).
 
-Transactions are pruned upon chargeback (the spec only mentions chargeback as a final transition; any other transaction — may be disputed).
+Transaction-IDs are recycled: if a transaction is not disputed (i.e. in the state Withdrawal or Deposited) — it may be pruned according to the LRU policy (Default cache size — 64M; Configurable via env `TX_LRU_SIZE`).
 
 The engine does not require the whole input data set materialized in order to process it; it requires a single transaction at a time.
 
-The balances of different accounts are independent, so if necessary, separate engines can be used to process distinct sets of accounts (i.e. shard by client-id).
+The balances of different accounts are independent, so if necessary, separate engines can be used to process distinct sets of accounts at the cost of allowing coinciding tx-ids in different shards.
 
 ## Maintainability
 
@@ -56,9 +56,8 @@ A clean git-history is preserved. The motivation of some seemingly weird choices
 
 # Assumptions
 
-* transaction is kept forever until it is charged-back
+* it is assumed that 64M tx-id cache should be enough (estimated cache footprint — 2GiB).
 * the way dispute behaviour is worded, it seems obvious that only `deposit`-transactions can be disputed.
 * It is hoped for that `i128` will suffice to hold the amounts.
 * transactions carrying amounts with precision exceeding 4-digits past decimal are rejected, rather than rounded to fit the chosen fixed-point number.
-* accounts that have zero-balances, do not have disputes, and are not locked — are not kept (hence there won't be `(X, 0, 0, 0, false)`  records in the output).
 * the code is formatted using some `rustfmt.toml`. This approach is opinionated: I do not insist that this is the way to format the code; I just run rustfmt from time to time.
