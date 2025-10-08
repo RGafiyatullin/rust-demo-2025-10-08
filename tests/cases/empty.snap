@@ -1,0 +1,5 @@
+---
+source: tests/run-cli.rs
+expression: "output_lines.join(\"\\n\")"
+---
+
