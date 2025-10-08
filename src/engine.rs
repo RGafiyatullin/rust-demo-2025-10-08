@@ -10,15 +10,20 @@ use crate::{
 
 pub mod errors;
 
+use caches::{Cache, RawLRU};
 use errors::*;
 use fixnum::ops::{CheckedAdd, CheckedSub};
 
+// Expected size 64M * 32B = 2GiB
+const DEFAULT_TX_LRU_SIZE: usize = 64 * 1024 * 1024;
+
 /// Engine keeps balances, and changes them according to the processed
 /// transactions.
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct Engine {
     balances: HashMap<ClientId, Balance>,
     transactions: HashMap<TxId, TxState>,
+    evictable_txs: RawLRU<TxId, ()>,
 }
 
 #[derive(Debug, Default)]
@@ -45,7 +50,21 @@ enum TxState {
     },
 }
 
+impl Default for Engine {
+    fn default() -> Self {
+        Self::with_tx_cache_size(DEFAULT_TX_LRU_SIZE)
+    }
+}
+
 impl Engine {
+    pub fn with_tx_cache_size(cache_size: usize) -> Self {
+        Self {
+            balances: Default::default(),
+            transactions: Default::default(),
+            evictable_txs: RawLRU::new(cache_size).expect("couldn't create RawLRU"),
+        }
+    }
+
     /// Iterate over all stored balances
     pub fn accounts(&self) -> impl Iterator<Item = Account> + '_ {
         self.balances.iter().map(|(&client_id, balances)| Account {
@@ -100,6 +119,7 @@ impl Engine {
             amount_deposited,
             client_id,
         });
+        self.add_to_evictable(tx_id);
 
         Ok(())
     }
@@ -149,10 +169,11 @@ impl Engine {
             )
         };
         tx.insert(TxState::Withdrawn);
-
         if balance.get().can_be_pruned() {
             let _ = balance.remove();
         }
+
+        self.add_to_evictable(tx_id);
 
         Ok(())
     }
@@ -191,6 +212,7 @@ impl Engine {
             client_id,
             amount_disputed,
         };
+        self.remove_from_evictable(tx_id);
 
         Ok(())
     }
@@ -236,6 +258,8 @@ impl Engine {
             let _ = balance.remove();
         }
 
+        self.add_to_evictable(tx_id);
+
         Ok(())
     }
 
@@ -273,6 +297,25 @@ impl Engine {
         let _ = transaction.remove();
 
         Ok(())
+    }
+
+    fn add_to_evictable(&mut self, tx_id: TxId) {
+        if let caches::PutResult::Evicted {
+            key: evicted_tx_id, ..
+        } = self.evictable_txs.put(tx_id, ())
+        {
+            let evicted_tx_state_opt = self.transactions.remove(&evicted_tx_id);
+            assert!(matches!(
+                evicted_tx_state_opt,
+                Some(TxState::Deposited { .. } | TxState::Withdrawn)
+            ));
+        }
+    }
+
+    fn remove_from_evictable(&mut self, tx_id: TxId) {
+        self.evictable_txs
+            .remove(&tx_id)
+            .expect("should be present");
     }
 }
 

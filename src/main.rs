@@ -12,7 +12,12 @@ fn main() {
 }
 
 fn run() -> Result<(), AnyError> {
-    let mut engine = Engine::default();
+    let mut engine = if let Ok(tx_lru_size) = env::var("TX_LRU_SIZE") {
+        Engine::with_tx_cache_size(tx_lru_size.parse()?)
+    } else {
+        Engine::default()
+    };
+
     let Some(input) = env::args().nth(1) else {
         return Err("exactly one argument expected".into());
     };
