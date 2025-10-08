@@ -1,0 +1,212 @@
+---
+source: src/input/tests.rs
+expression: output
+---
+[
+    Ok(
+        Tx {
+            client_id: ClientId(
+                1,
+            ),
+            tx_id: TxId(
+                1,
+            ),
+            kind: Deposit(
+                TxDeposit {
+                    amount: PositiveAmount(
+                        1.0,
+                    ),
+                },
+            ),
+        },
+    ),
+    Ok(
+        Tx {
+            client_id: ClientId(
+                1,
+            ),
+            tx_id: TxId(
+                2,
+            ),
+            kind: Deposit(
+                TxDeposit {
+                    amount: PositiveAmount(
+                        0.0,
+                    ),
+                },
+            ),
+        },
+    ),
+    Ok(
+        Tx {
+            client_id: ClientId(
+                1,
+            ),
+            tx_id: TxId(
+                3,
+            ),
+            kind: Deposit(
+                TxDeposit {
+                    amount: PositiveAmount(
+                        -1.0,
+                    ),
+                },
+            ),
+        },
+    ),
+    Ok(
+        Tx {
+            client_id: ClientId(
+                2,
+            ),
+            tx_id: TxId(
+                4,
+            ),
+            kind: Deposit(
+                TxDeposit {
+                    amount: PositiveAmount(
+                        1.0,
+                    ),
+                },
+            ),
+        },
+    ),
+    Ok(
+        Tx {
+            client_id: ClientId(
+                2,
+            ),
+            tx_id: TxId(
+                5,
+            ),
+            kind: Deposit(
+                TxDeposit {
+                    amount: PositiveAmount(
+                        0.0,
+                    ),
+                },
+            ),
+        },
+    ),
+    Ok(
+        Tx {
+            client_id: ClientId(
+                2,
+            ),
+            tx_id: TxId(
+                6,
+            ),
+            kind: Deposit(
+                TxDeposit {
+                    amount: PositiveAmount(
+                        -1.0,
+                    ),
+                },
+            ),
+        },
+    ),
+    Ok(
+        Tx {
+            client_id: ClientId(
+                3,
+            ),
+            tx_id: TxId(
+                7,
+            ),
+            kind: Deposit(
+                TxDeposit {
+                    amount: PositiveAmount(
+                        1.0,
+                    ),
+                },
+            ),
+        },
+    ),
+    Ok(
+        Tx {
+            client_id: ClientId(
+                3,
+            ),
+            tx_id: TxId(
+                8,
+            ),
+            kind: Deposit(
+                TxDeposit {
+                    amount: PositiveAmount(
+                        1.0001,
+                    ),
+                },
+            ),
+        },
+    ),
+    Ok(
+        Tx {
+            client_id: ClientId(
+                3,
+            ),
+            tx_id: TxId(
+                9,
+            ),
+            kind: Deposit(
+                TxDeposit {
+                    amount: PositiveAmount(
+                        1.0001,
+                    ),
+                },
+            ),
+        },
+    ),
+    Ok(
+        Tx {
+            client_id: ClientId(
+                3,
+            ),
+            tx_id: TxId(
+                10,
+            ),
+            kind: Deposit(
+                TxDeposit {
+                    amount: PositiveAmount(
+                        1.0001,
+                    ),
+                },
+            ),
+        },
+    ),
+    Ok(
+        Tx {
+            client_id: ClientId(
+                4,
+            ),
+            tx_id: TxId(
+                11,
+            ),
+            kind: Deposit(
+                TxDeposit {
+                    amount: PositiveAmount(
+                        111111111111111.1,
+                    ),
+                },
+            ),
+        },
+    ),
+    Err(
+        Error(
+            Deserialize {
+                pos: Some(
+                    Position {
+                        byte: 366,
+                        line: 13,
+                        record: 12,
+                    },
+                ),
+                err: DeserializeError {
+                    field: None,
+                    kind: Message(
+                        "invalid value: floating point `1111111111111111.1`, expected number or string containing a fixed-point number",
+                    ),
+                },
+            },
+        ),
+    ),
+]
