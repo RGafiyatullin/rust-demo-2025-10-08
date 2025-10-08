@@ -103,20 +103,87 @@ pub enum ProcessWithdrawalError {
 
 /// An error processing dispute-transaction
 #[derive(Debug, thiserror::Error)]
-pub enum ProcessDisputeError {}
+pub enum ProcessDisputeError {
+    /// See [`UnknownTxId`]
+    #[error("{}", _0)]
+    UnknownTxId(
+        #[from]
+        #[source]
+        UnknownTxId,
+    ),
+
+    /// See [`UnexpectedTxState`]
+    #[error("{}", _0)]
+    UnexpectedTxState(
+        #[from]
+        #[source]
+        UnexpectedTxState,
+    ),
+
+    /// An arithmetic error during the balance calculation.
+    #[error("Arithmetic error: {}", _0)]
+    Overflow(
+        #[from]
+        #[source]
+        ArithmeticError,
+    ),
+}
 
 /// An error processing resolve-transaction
 #[derive(Debug, thiserror::Error)]
-pub enum ProcessResolveError {}
+pub enum ProcessResolveError {
+    /// See [`UnknownTxId`]
+    #[error("{}", _0)]
+    UnknownTxId(
+        #[from]
+        #[source]
+        UnknownTxId,
+    ),
+
+    /// See [`UnexpectedTxState`]
+    #[error("{}", _0)]
+    UnexpectedTxState(
+        #[from]
+        #[source]
+        UnexpectedTxState,
+    ),
+}
 
 /// An error processing chargeback-transaction
 #[derive(Debug, thiserror::Error)]
-pub enum ProcessChargebackError {}
+pub enum ProcessChargebackError {
+    /// See [`UnknownTxId`]
+    #[error("{}", _0)]
+    UnknownTxId(
+        #[from]
+        #[source]
+        UnknownTxId,
+    ),
+
+    /// See [`UnexpectedTxState`]
+    #[error("{}", _0)]
+    UnexpectedTxState(
+        #[from]
+        #[source]
+        UnexpectedTxState,
+    ),
+}
 
 /// Transaction was rejected due to having a non-unique tx-id.
 #[derive(Debug, thiserror::Error)]
 #[error("duplicate tx-id: {}", _0)]
 pub struct DuplicateTxId(pub TxId);
+
+/// No transaction corresponds to the specified tx-id.
+#[derive(Debug, thiserror::Error)]
+#[error("unknown tx-id: {}", _0)]
+pub struct UnknownTxId(pub TxId);
+
+/// The refered transaction's state is incompatible with the requested
+/// operation.
+#[derive(Debug, thiserror::Error)]
+#[error("unexpected transaction state")]
+pub struct UnexpectedTxState;
 
 /// Transaction was rejected because the account it refers is locked.
 #[derive(Debug, thiserror::Error)]

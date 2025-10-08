@@ -23,6 +23,39 @@ use crate::{engine::Engine, input::Tx};
     t::d(1, 1, "1.0"),
     t::w(1, 2, "1.0"),
 ]; "case-04.b")]
+#[test_case([
+    t::d(1,1,"1.0"),
+    t::w(1,2,"2.0"),
+]; "case-05")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::w(1, 2, "0.5"),
+]; "case-06")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::w(1, 2, "0.5"),
+    t::w(1, 3, "0.5"),
+    t::w(1, 4, "0.5"),
+]; "case-07")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::di(1, 1),
+]; "case-08")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::w(1, 2, "1.0"),
+    t::di(1, 1),
+]; "case-09")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::w(1, 2, "1.0"),
+    t::di(1, 2),
+    t::di(1, 3),
+]; "case-10")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::di(2, 1),
+]; "case-11")]
 fn process_transactions(transactions: impl IntoIterator<Item = Tx>) {
     let case_name = std::thread::current()
         .name()
@@ -85,15 +118,15 @@ mod t {
         }
     }
 
-    // pub(crate) fn di(client_id: u16, tx_id: u32) -> Tx {
-    //     let client_id = client_id.into();
-    //     let tx_id = tx_id.into();
-    //     Tx {
-    //         client_id,
-    //         tx_id,
-    //         kind: TxKind::Dispute,
-    //     }
-    // }
+    pub(crate) fn di(client_id: u16, tx_id: u32) -> Tx {
+        let client_id = client_id.into();
+        let tx_id = tx_id.into();
+        Tx {
+            client_id,
+            tx_id,
+            kind: TxKind::Dispute,
+        }
+    }
     // pub(crate) fn re(client_id: u16, tx_id: u32) -> Tx {
     //     let client_id = client_id.into();
     //     let tx_id = tx_id.into();

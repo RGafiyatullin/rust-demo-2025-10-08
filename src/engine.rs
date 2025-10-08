@@ -30,12 +30,16 @@ struct Balance {
 
 #[derive(Debug, Clone, Copy)]
 enum TxState {
-    #[allow(dead_code)] // XXX
     Deposited {
         amount_deposited: PositiveAmount,
         client_id: ClientId,
     },
     Withdrawn,
+    #[allow(dead_code)] // XXX
+    Disputed {
+        amount_disputed: PositiveAmount,
+        client_id: ClientId,
+    },
 }
 
 impl Engine {
@@ -149,8 +153,38 @@ impl Engine {
         client_id: ClientId,
         tx_id: TxId,
     ) -> Result<(), ProcessDisputeError> {
-        let _ = (client_id, tx_id);
-        unimplemented!()
+        let transaction = self
+            .transactions
+            .get_mut(&tx_id)
+            .ok_or(UnknownTxId(tx_id))?;
+        let TxState::Deposited {
+            amount_deposited: amount_disputed,
+            client_id: expected_client_id,
+        } = *transaction
+        else {
+            return Err(UnexpectedTxState.into());
+        };
+
+        if client_id != expected_client_id {
+            return Err(UnexpectedTxState.into());
+        }
+
+        let balance = self.balances.entry(client_id).or_default();
+        let new_held: NonNegativeAmount = {
+            let held: Amount = balance.held.into();
+            let amount_disputed: Amount = amount_disputed.into();
+
+            held.cadd(amount_disputed)?
+                .try_into()
+                .expect("adding a non-negative and a positive; should produce a positive")
+        };
+        balance.held = new_held;
+        *transaction = TxState::Disputed {
+            client_id,
+            amount_disputed,
+        };
+
+        Ok(())
     }
 
     fn process_resolve(
@@ -187,12 +221,7 @@ impl Balance {
 
     #[cfg(test)]
     fn total(&self) -> NonNegativeAmount {
-        let available: Amount = self.available().into();
-        let held: Amount = self.held().into();
-        available
-            .saturating_add(held)
-            .try_into()
-            .expect("sum of two non-negatives")
+        self.total
     }
 
     #[cfg(test)]
