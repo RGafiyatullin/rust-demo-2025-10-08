@@ -64,13 +64,9 @@ pub struct PositiveAmount(
     PartialOrd,
     Ord,
     Hash,
-    serde::Serialize,
-    serde::Deserialize
+    serde::Serialize
 )]
-pub struct NonNegativeAmount(
-    // FIXME: ensure the deserialized value is indeed non-negative.
-    Amount,
-);
+pub struct NonNegativeAmount(Amount);
 
 mod non_negative_amount {
     use std::fmt;
