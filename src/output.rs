@@ -1,3 +1,5 @@
+//! This module contains types necessary to render the program's output.
+
 use crate::types::{Amount, ClientId, NonNegativeAmount};
 
 /// A serde-serializable account entry

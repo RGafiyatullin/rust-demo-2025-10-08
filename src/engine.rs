@@ -46,6 +46,7 @@ enum TxState {
 }
 
 impl Engine {
+    /// Iterate over all stored balances
     pub fn accounts(&self) -> impl Iterator<Item = Account> + '_ {
         self.balances.iter().map(|(&client_id, balances)| Account {
             client_id,

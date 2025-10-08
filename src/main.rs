@@ -13,7 +13,7 @@ fn main() {
 
 fn run() -> Result<(), AnyError> {
     let mut engine = Engine::default();
-    let Some(input) = env::args().skip(1).next() else {
+    let Some(input) = env::args().nth(1) else {
         return Err("exactly one argument expected".into());
     };
 
