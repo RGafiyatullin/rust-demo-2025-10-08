@@ -57,6 +57,7 @@ impl Default for Engine {
 }
 
 impl Engine {
+    /// Create an Engine with the selected tx-cache size
     pub fn with_tx_cache_size(cache_size: usize) -> Self {
         Self {
             balances: Default::default(),
