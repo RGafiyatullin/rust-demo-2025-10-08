@@ -23,6 +23,68 @@ use crate::{engine::Engine, input::Tx};
     t::d(1, 1, "1.0"),
     t::w(1, 2, "1.0"),
 ]; "case-04.b")]
+#[test_case([
+    t::d(1,1,"1.0"),
+    t::w(1,2,"2.0"),
+]; "case-05")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::w(1, 2, "0.5"),
+]; "case-06")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::w(1, 2, "0.5"),
+    t::w(1, 3, "0.5"),
+    t::w(1, 4, "0.5"),
+]; "case-07")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::di(1, 1),
+]; "case-08")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::w(1, 2, "1.0"),
+    t::di(1, 1),
+]; "case-09")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::w(1, 2, "1.0"),
+    t::di(1, 2),
+    t::di(1, 3),
+]; "case-10")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::di(2, 1),
+]; "case-11")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::di(1, 1),
+    t::re(1, 1),
+]; "case-12")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::w(1, 2, "1.0"),
+    t::di(1, 1),
+    t::re(1, 1),
+]; "case-13")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::di(1, 1),
+    t::cb(1, 1),
+]; "case-14")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::w(1, 2, "1.0"),
+    t::di(1, 1),
+    t::cb(1, 1),
+]; "case-15")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::d(1, 2, "1.0"),
+    t::di(1, 1),
+    t::cb(1, 1),
+    t::w(1, 3, "1.0"),
+]; "case-16")]
 fn process_transactions(transactions: impl IntoIterator<Item = Tx>) {
     let case_name = std::thread::current()
         .name()
@@ -35,17 +97,21 @@ fn process_transactions(transactions: impl IntoIterator<Item = Tx>) {
 
     for tx in transactions {
         let outcome = engine.process_tx(tx.clone());
-        transcript.push((tx, outcome));
+        transcript.push((format!("{:?}", tx), outcome.map_err(|e| e.to_string())));
     }
 
     insta::with_settings!({
         snapshot_path => "cases",
         prepend_module_to_snapshot => false,
     }, {
-        insta::assert_debug_snapshot!(case_name,
+        insta::assert_yaml_snapshot!(case_name,
             (
                 transcript,
-                engine.balances.into_iter().collect::<BTreeMap<_,_>>(),
+                engine.balances.into_iter()
+                    .map(|(client_id, balance)|
+                        (client_id, (balance.available(), balance.held(), balance.total(), balance.is_locked()))
+                    )
+                    .collect::<BTreeMap<_,_>>(),
             ),
         );
     });
@@ -81,31 +147,33 @@ mod t {
         }
     }
 
-    // pub(crate) fn di(client_id: u16, tx_id: u32) -> Tx {
-    //     let client_id = client_id.into();
-    //     let tx_id = tx_id.into();
-    //     Tx {
-    //         client_id,
-    //         tx_id,
-    //         kind: TxKind::Dispute,
-    //     }
-    // }
-    // pub(crate) fn re(client_id: u16, tx_id: u32) -> Tx {
-    //     let client_id = client_id.into();
-    //     let tx_id = tx_id.into();
-    //     Tx {
-    //         client_id,
-    //         tx_id,
-    //         kind: TxKind::Resolve,
-    //     }
-    // }
-    // pub(crate) fn cb(client_id: u16, tx_id: u32) -> Tx {
-    //     let client_id = client_id.into();
-    //     let tx_id = tx_id.into();
-    //     Tx {
-    //         client_id,
-    //         tx_id,
-    //         kind: TxKind::Chargeback,
-    //     }
-    // }
+    pub(crate) fn di(client_id: u16, tx_id: u32) -> Tx {
+        let client_id = client_id.into();
+        let tx_id = tx_id.into();
+        Tx {
+            client_id,
+            tx_id,
+            kind: TxKind::Dispute,
+        }
+    }
+
+    pub(crate) fn re(client_id: u16, tx_id: u32) -> Tx {
+        let client_id = client_id.into();
+        let tx_id = tx_id.into();
+        Tx {
+            client_id,
+            tx_id,
+            kind: TxKind::Resolve,
+        }
+    }
+
+    pub(crate) fn cb(client_id: u16, tx_id: u32) -> Tx {
+        let client_id = client_id.into();
+        let tx_id = tx_id.into();
+        Tx {
+            client_id,
+            tx_id,
+            kind: TxKind::Chargeback,
+        }
+    }
 }

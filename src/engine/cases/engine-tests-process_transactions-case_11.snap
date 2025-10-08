@@ -4,10 +4,10 @@ expression: "(transcript,\nengine.balances.into_iter().map(|(client_id, balance)
 ---
 - - - "Tx { client_id: ClientId(1), tx_id: TxId(1), kind: Deposit(TxDeposit { amount_deposited: PositiveAmount(1.0) }) }"
     - Ok: ~
-  - - "Tx { client_id: ClientId(1), tx_id: TxId(2), kind: Withdrawal(TxWithdrawal { amount_withdrawn: PositiveAmount(0.5) }) }"
-    - Ok: ~
+  - - "Tx { client_id: ClientId(2), tx_id: TxId(1), kind: Dispute }"
+    - Err: unexpected transaction state
 - 1:
-    - "0.5"
+    - "1.0"
     - "0.0"
-    - "0.5"
+    - "1.0"
     - false

@@ -4,10 +4,14 @@ expression: "(transcript,\nengine.balances.into_iter().map(|(client_id, balance)
 ---
 - - - "Tx { client_id: ClientId(1), tx_id: TxId(1), kind: Deposit(TxDeposit { amount_deposited: PositiveAmount(1.0) }) }"
     - Ok: ~
-  - - "Tx { client_id: ClientId(1), tx_id: TxId(2), kind: Withdrawal(TxWithdrawal { amount_withdrawn: PositiveAmount(0.5) }) }"
+  - - "Tx { client_id: ClientId(1), tx_id: TxId(2), kind: Withdrawal(TxWithdrawal { amount_withdrawn: PositiveAmount(1.0) }) }"
+    - Ok: ~
+  - - "Tx { client_id: ClientId(1), tx_id: TxId(1), kind: Dispute }"
+    - Ok: ~
+  - - "Tx { client_id: ClientId(1), tx_id: TxId(1), kind: Chargeback }"
     - Ok: ~
 - 1:
-    - "0.5"
+    - "-1.0"
     - "0.0"
-    - "0.5"
-    - false
+    - "-1.0"
+    - true
