@@ -232,8 +232,35 @@ impl Engine {
         client_id: ClientId,
         tx_id: TxId,
     ) -> Result<(), ProcessChargebackError> {
-        let _ = (client_id, tx_id);
-        unimplemented!()
+        let Occupied(transaction) = self.transactions.entry(tx_id) else {
+            return Err(UnknownTxId(tx_id).into());
+        };
+        let TxState::Disputed {
+            amount_disputed,
+            client_id: expected_client_id,
+        } = *transaction.get()
+        else {
+            return Err(UnexpectedTxState.into());
+        };
+        if client_id != expected_client_id {
+            return Err(UnexpectedTxState.into());
+        }
+
+        let balance = self
+            .balances
+            .get_mut(&client_id)
+            .expect("disputed account shouldn't have been pruned");
+        balance.chargedback = {
+            let total_chargedback: Amount = balance.chargedback.into();
+            let amount_disputed: Amount = amount_disputed.into();
+
+            total_chargedback.cadd(amount_disputed)?.try_into().expect(
+                "sum of a non-negative and a positive, overflow handled; should be positive",
+            )
+        };
+        let _ = transaction.remove();
+
+        Ok(())
     }
 }
 
@@ -243,35 +270,35 @@ impl Balance {
         let wi: Amount = self.withdrawn.into();
         let di: Amount = self.disputed.into();
         let re: Amount = self.resolved.into();
-        let ch: Amount = self.chargedback.into();
 
-        de.saturating_sub(wi)
-            .saturating_sub(ch)
-            .saturating_sub(di)
-            .saturating_add(re)
+        de // deposit should increase available funds
+            .saturating_sub(wi) // withdrawal should decrease available funds
+            .saturating_sub(di) // available funds decrease by the amount disputed
+            .saturating_add(re) // available funds increase by the amount resolved
     }
 
     fn held(&self) -> NonNegativeAmount {
-        // let de: Amount = self.deposited.into();
-        // let wi: Amount = self.withdrawn.into();
         let di: Amount = self.disputed.into();
         let re: Amount = self.resolved.into();
         let ch: Amount = self.chargedback.into();
 
-        di.saturating_sub(re)
-            .saturating_sub(ch)
+        di // held funds increase upon dispute
+            .saturating_sub(re) // held funds decrease by the amount resolved
+            .saturating_sub(ch) // held funds decrease by the amount charged back
             .try_into()
-            .expect("re + ch <= di")
+            .expect("held funds must not be negative")
     }
 
     fn total(&self) -> Amount {
         let de: Amount = self.deposited.into();
         let wi: Amount = self.withdrawn.into();
-        // let di: Amount = self.disputed.into();
-        // let re: Amount = self.released.into();
         let ch: Amount = self.chargedback.into();
 
-        de.saturating_sub(wi).saturating_sub(ch)
+        de // deposit should increase total funds
+            .saturating_sub(wi) // withdrawal should decrease total funds
+            // total funds are unaffected by disputes
+            // total funds are unaffected by resolves
+            .saturating_sub(ch) // total funds decrease by the amount charged back
     }
 
     fn is_locked(&self) -> bool {

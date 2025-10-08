@@ -67,6 +67,24 @@ use crate::{engine::Engine, input::Tx};
     t::di(1, 1),
     t::re(1, 1),
 ]; "case-13")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::di(1, 1),
+    t::cb(1, 1),
+]; "case-14")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::w(1, 2, "1.0"),
+    t::di(1, 1),
+    t::cb(1, 1),
+]; "case-15")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::d(1, 2, "1.0"),
+    t::di(1, 1),
+    t::cb(1, 1),
+    t::w(1, 3, "1.0"),
+]; "case-16")]
 fn process_transactions(transactions: impl IntoIterator<Item = Tx>) {
     let case_name = std::thread::current()
         .name()
@@ -138,6 +156,7 @@ mod t {
             kind: TxKind::Dispute,
         }
     }
+
     pub(crate) fn re(client_id: u16, tx_id: u32) -> Tx {
         let client_id = client_id.into();
         let tx_id = tx_id.into();
@@ -147,13 +166,14 @@ mod t {
             kind: TxKind::Resolve,
         }
     }
-    // pub(crate) fn cb(client_id: u16, tx_id: u32) -> Tx {
-    //     let client_id = client_id.into();
-    //     let tx_id = tx_id.into();
-    //     Tx {
-    //         client_id,
-    //         tx_id,
-    //         kind: TxKind::Chargeback,
-    //     }
-    // }
+
+    pub(crate) fn cb(client_id: u16, tx_id: u32) -> Tx {
+        let client_id = client_id.into();
+        let tx_id = tx_id.into();
+        Tx {
+            client_id,
+            tx_id,
+            kind: TxKind::Chargeback,
+        }
+    }
 }
