@@ -2,25 +2,23 @@
 
 use crate::types::{ClientId, PositiveAmount, TxId};
 
+mod impl_serde;
+
 /// A transaction of any supported kind.
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone)]
 pub struct Tx {
     /// Client this transaction relates to.
-    #[serde(rename = "client")]
     pub client_id: ClientId,
 
     /// Globally unique transaction id.
-    #[serde(rename = "tx")]
     pub tx_id: TxId,
 
     /// See [`TxKind`].
-    #[serde(flatten)]
     pub kind: TxKind,
 }
 
 /// Data specific to the transaction kind.
-#[derive(Debug, Clone, serde::Deserialize)]
-#[serde(tag = "type", rename_all = "lowercase")]
+#[derive(Debug, Clone)]
 pub enum TxKind {
     /// See [`TxDeposit`].
     Deposit(TxDeposit),
@@ -35,18 +33,16 @@ pub enum TxKind {
 }
 
 /// Put funds into the account.
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone)]
 pub struct TxDeposit {
     /// Amount being deposited
-    #[serde(rename = "amount")]
     pub amount_deposited: PositiveAmount,
 }
 
 /// Take funds from the account.
-#[derive(Debug, Clone, serde::Deserialize)]
+#[derive(Debug, Clone)]
 pub struct TxWithdrawal {
     /// Amount to withdraw
-    #[serde(rename = "amount")]
     pub amount_withdrawn: PositiveAmount,
 }
 

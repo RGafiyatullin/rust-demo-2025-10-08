@@ -20,39 +20,43 @@ expression: output
             ),
         },
     ),
-    Ok(
-        Tx {
-            client_id: ClientId(
-                1,
-            ),
-            tx_id: TxId(
-                2,
-            ),
-            kind: Deposit(
-                TxDeposit {
-                    amount_deposited: PositiveAmount(
-                        0.0,
+    Err(
+        Error(
+            Deserialize {
+                pos: Some(
+                    Position {
+                        byte: 59,
+                        line: 3,
+                        record: 2,
+                    },
+                ),
+                err: DeserializeError {
+                    field: None,
+                    kind: Message(
+                        "expected positive amount; got: 0.0",
                     ),
                 },
-            ),
-        },
+            },
+        ),
     ),
-    Ok(
-        Tx {
-            client_id: ClientId(
-                1,
-            ),
-            tx_id: TxId(
-                3,
-            ),
-            kind: Deposit(
-                TxDeposit {
-                    amount_deposited: PositiveAmount(
-                        -1.0,
+    Err(
+        Error(
+            Deserialize {
+                pos: Some(
+                    Position {
+                        byte: 87,
+                        line: 4,
+                        record: 3,
+                    },
+                ),
+                err: DeserializeError {
+                    field: None,
+                    kind: Message(
+                        "expected positive amount; got: -1.0",
                     ),
                 },
-            ),
-        },
+            },
+        ),
     ),
     Ok(
         Tx {
@@ -71,39 +75,43 @@ expression: output
             ),
         },
     ),
-    Ok(
-        Tx {
-            client_id: ClientId(
-                2,
-            ),
-            tx_id: TxId(
-                5,
-            ),
-            kind: Deposit(
-                TxDeposit {
-                    amount_deposited: PositiveAmount(
-                        0.0,
+    Err(
+        Error(
+            Deserialize {
+                pos: Some(
+                    Position {
+                        byte: 142,
+                        line: 6,
+                        record: 5,
+                    },
+                ),
+                err: DeserializeError {
+                    field: None,
+                    kind: Message(
+                        "expected positive amount; got: 0.0",
                     ),
                 },
-            ),
-        },
+            },
+        ),
     ),
-    Ok(
-        Tx {
-            client_id: ClientId(
-                2,
-            ),
-            tx_id: TxId(
-                6,
-            ),
-            kind: Deposit(
-                TxDeposit {
-                    amount_deposited: PositiveAmount(
-                        -1.0,
+    Err(
+        Error(
+            Deserialize {
+                pos: Some(
+                    Position {
+                        byte: 168,
+                        line: 7,
+                        record: 6,
+                    },
+                ),
+                err: DeserializeError {
+                    field: None,
+                    kind: Message(
+                        "expected positive amount; got: -1.0",
                     ),
                 },
-            ),
-        },
+            },
+        ),
     ),
     Ok(
         Tx {
@@ -139,39 +147,43 @@ expression: output
             ),
         },
     ),
-    Ok(
-        Tx {
-            client_id: ClientId(
-                3,
-            ),
-            tx_id: TxId(
-                9,
-            ),
-            kind: Deposit(
-                TxDeposit {
-                    amount_deposited: PositiveAmount(
-                        1.0001,
+    Err(
+        Error(
+            Deserialize {
+                pos: Some(
+                    Position {
+                        byte: 257,
+                        line: 10,
+                        record: 9,
+                    },
+                ),
+                err: DeserializeError {
+                    field: None,
+                    kind: Message(
+                        "requested precision is too high",
                     ),
                 },
-            ),
-        },
+            },
+        ),
     ),
-    Ok(
-        Tx {
-            client_id: ClientId(
-                3,
-            ),
-            tx_id: TxId(
-                10,
-            ),
-            kind: Deposit(
-                TxDeposit {
-                    amount_deposited: PositiveAmount(
-                        1.0001,
+    Err(
+        Error(
+            Deserialize {
+                pos: Some(
+                    Position {
+                        byte: 289,
+                        line: 11,
+                        record: 10,
+                    },
+                ),
+                err: DeserializeError {
+                    field: None,
+                    kind: Message(
+                        "requested precision is too high",
                     ),
                 },
-            ),
-        },
+            },
+        ),
     ),
     Ok(
         Tx {
@@ -184,7 +196,7 @@ expression: output
             kind: Deposit(
                 TxDeposit {
                     amount_deposited: PositiveAmount(
-                        111111111111111.1,
+                        111111111111111.1111,
                     ),
                 },
             ),
@@ -203,7 +215,7 @@ expression: output
                 err: DeserializeError {
                     field: None,
                     kind: Message(
-                        "invalid value: floating point `1111111111111111.1`, expected number or string containing a fixed-point number",
+                        "too big integral",
                     ),
                 },
             },

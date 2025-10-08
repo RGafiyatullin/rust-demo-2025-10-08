@@ -50,8 +50,7 @@ pub type Amount = FixedPoint<i64, typenum::U4>;
     serde::Deserialize
 )]
 pub struct PositiveAmount(
-    // FIXME: ensure the deserialized value is indeed positive.
-    Amount,
+    #[serde(deserialize_with = "positive_amount::deserialize_amount_ensure_positive_value")] Amount,
 );
 
 /// Amount that cannot be negative.
@@ -111,6 +110,8 @@ mod non_negative_amount {
 mod positive_amount {
     use std::fmt;
 
+    use serde::{Deserialize, Deserializer};
+
     use super::*;
     #[derive(Debug, thiserror::Error)]
     #[error("expected positive amount; got: {}", _0)]
@@ -139,6 +140,23 @@ mod positive_amount {
         fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             fmt::Display::fmt(&self.0, f)
         }
+    }
+
+    pub(super) fn deserialize_amount_ensure_positive_value<'de, D>(
+        deserializer: D,
+    ) -> Result<Amount, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        use serde::de::Error as _;
+
+        let s: &str = Deserialize::deserialize(deserializer)?;
+        let a = Amount::from_str_exact(s).map_err(D::Error::custom)?;
+        if a.signum() <= 0 {
+            return Err(D::Error::custom(NonPositiveAmount(a)));
+        }
+
+        Ok(a)
     }
 }
 
