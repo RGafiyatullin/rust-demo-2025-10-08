@@ -2,5 +2,6 @@
 
 //! a simple transaction processor and balance keeper.
 
+pub mod engine;
 pub mod input;
 pub mod types;
