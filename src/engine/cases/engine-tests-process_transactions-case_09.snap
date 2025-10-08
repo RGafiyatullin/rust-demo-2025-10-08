@@ -1,6 +1,5 @@
 ---
 source: src/engine/tests.rs
-assertion_line: 78
 expression: "(transcript,\nengine.balances.into_iter().map(|(client_id, balance)|\n(client_id,\n(balance.available(), balance.held(), balance.total(),\nbalance.is_locked()))).collect::<BTreeMap<_,_>>(),)"
 ---
 - - - "Tx { client_id: ClientId(1), tx_id: TxId(1), kind: Deposit(TxDeposit { amount_deposited: PositiveAmount(1.0) }) }"
@@ -10,7 +9,7 @@ expression: "(transcript,\nengine.balances.into_iter().map(|(client_id, balance)
   - - "Tx { client_id: ClientId(1), tx_id: TxId(1), kind: Dispute }"
     - Ok: ~
 - 1:
-    - "0.0"
+    - "-1.0"
     - "1.0"
     - "0.0"
     - false

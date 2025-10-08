@@ -2,7 +2,7 @@
 
 use fixnum::ArithmeticError;
 
-use crate::types::{ClientId, NonNegativeAmount, TxId};
+use crate::types::{Amount, ClientId, TxId};
 
 /// An error processing a transaction of any supported kind.
 #[derive(Debug, thiserror::Error)]
@@ -98,7 +98,7 @@ pub enum ProcessWithdrawalError {
     /// The client does not have enough available funds to complete the
     /// requested withdrwal.
     #[error("Insufficient funds: {} has {}", _0, _1)]
-    InsufficientFunds(ClientId, NonNegativeAmount),
+    InsufficientFunds(ClientId, Amount),
 }
 
 /// An error processing dispute-transaction

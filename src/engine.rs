@@ -207,11 +207,11 @@ impl Engine {
 }
 
 impl Balance {
-    fn available(&self) -> NonNegativeAmount {
+    fn available(&self) -> Amount {
         let t: Amount = self.total.into();
         let h: Amount = self.held.into();
 
-        NonNegativeAmount::try_from(t.saturating_sub(h)).unwrap_or_default()
+        t.saturating_sub(h)
     }
 
     #[cfg(test)]
