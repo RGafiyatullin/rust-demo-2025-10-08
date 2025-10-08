@@ -34,7 +34,7 @@ pub struct TxId(u32);
 
 /// Fixed point number to keep amounts: precision — 4 digits past the decimal
 /// point.
-pub type Amount = FixedPoint<i64, typenum::U4>;
+pub type Amount = FixedPoint<i128, typenum::U4>;
 
 /// Amount that can only be positive.
 #[derive(

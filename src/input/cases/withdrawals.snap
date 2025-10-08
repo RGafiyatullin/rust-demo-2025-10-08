@@ -106,7 +106,41 @@ expression: output
             ),
         },
     ),
+    Ok(
+        Tx {
+            client_id: ClientId(
+                4,
+            ),
+            tx_id: TxId(
+                12,
+            ),
+            kind: Withdrawal(
+                TxWithdrawal {
+                    amount_withdrawn: PositiveAmount(
+                        1111111111111111.1111,
+                    ),
+                },
+            ),
+        },
+    ),
+    Ok(
+        Tx {
+            client_id: ClientId(
+                5,
+            ),
+            tx_id: TxId(
+                13,
+            ),
+            kind: Withdrawal(
+                TxWithdrawal {
+                    amount_withdrawn: PositiveAmount(
+                        11111111111111111111111111111111111.1111,
+                    ),
+                },
+            ),
+        },
+    ),
     Err(
-        "CSV deserialize error: record 12 (line: 13, byte: 366): too big integral",
+        "CSV deserialize error: record 14 (line: 15, byte: 477): too big integral",
     ),
 ]
