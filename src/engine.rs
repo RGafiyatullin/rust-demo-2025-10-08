@@ -1,5 +1,4 @@
-use std::collections::HashMap;
-use std::collections::hash_map::Entry::*;
+use std::collections::{HashMap, hash_map::Entry::*};
 
 use crate::{
     input::{Tx, TxDeposit, TxKind, TxWithdrawal},
@@ -9,7 +8,7 @@ use crate::{
 pub mod errors;
 
 use errors::*;
-use fixnum::ops::CheckedAdd;
+use fixnum::ops::{CheckedAdd, CheckedSub};
 
 #[derive(Debug, Default)]
 pub struct Engine {
@@ -27,7 +26,11 @@ struct Balance {
 
 #[derive(Debug, Clone, Copy)]
 enum TxState {
-    Deposited { amount_deposited: PositiveAmount, client_id: ClientId, },
+    Deposited {
+        amount_deposited: PositiveAmount,
+        client_id: ClientId,
+    },
+    Withdrawn,
 }
 
 impl Engine {
@@ -57,17 +60,24 @@ impl Engine {
         deposit: TxDeposit,
     ) -> Result<(), ProcessDepositError> {
         let TxDeposit { amount_deposited } = deposit;
-        let Vacant(tx) = self.transactions.entry(tx_id) else { return Err(DuplicateTxId(tx_id).into()) };
+        let Vacant(tx) = self.transactions.entry(tx_id) else {
+            return Err(DuplicateTxId(tx_id).into());
+        };
         let balance = self.balances.entry(client_id).or_default();
 
         let new_total: NonNegativeAmount = {
             let total: Amount = balance.total.into();
             let amount_deposited: Amount = amount_deposited.into();
-            total.cadd(amount_deposited)?.try_into().expect("sum of a non-negative and a positive, overflow handled; should be positive")
+            total.cadd(amount_deposited)?.try_into().expect(
+                "sum of a non-negative and a positive, overflow handled; should be positive",
+            )
         };
 
         balance.total = new_total;
-        tx.insert(TxState::Deposited { amount_deposited, client_id, });
+        tx.insert(TxState::Deposited {
+            amount_deposited,
+            client_id,
+        });
 
         Ok(())
     }
@@ -78,7 +88,54 @@ impl Engine {
         tx_id: TxId,
         withdrawal: TxWithdrawal,
     ) -> Result<(), ProcessWithdrawalError> {
-        unimplemented!()
+        let TxWithdrawal { amount_withdrawn } = withdrawal;
+        let (mut balance, tx) = match (
+            self.balances.entry(client_id),
+            self.transactions.entry(tx_id),
+        ) {
+            (_, Occupied(_)) => return Err(DuplicateTxId(tx_id).into()),
+            (Occupied(balance), Vacant(_)) if balance.get().is_locked => {
+                return Err(AccountLocked(client_id).into());
+            }
+
+            (Vacant(_), _) => {
+                return Err(ProcessWithdrawalError::InsufficientFunds(
+                    client_id,
+                    Default::default(),
+                ));
+            }
+            (Occupied(balance), Vacant(_))
+                if Amount::from(balance.get().available()) < Amount::from(amount_withdrawn) =>
+            {
+                return Err(ProcessWithdrawalError::InsufficientFunds(
+                    client_id,
+                    balance.get().available(),
+                ));
+            }
+
+            (Occupied(balance), Vacant(tx)) => (balance, tx),
+        };
+
+        assert!(Amount::from(balance.get().available()) >= Amount::from(amount_withdrawn));
+        assert!(!balance.get().is_locked);
+
+        let new_total: NonNegativeAmount = {
+            let total: Amount = balance.get().total.into();
+            let amount_withdrawn: Amount = amount_withdrawn.into();
+            total
+                .csub(amount_withdrawn)?
+                .try_into()
+                .expect("relying on available not to be greater than total")
+        };
+
+        balance.get_mut().total = new_total;
+        tx.insert(TxState::Withdrawn);
+
+        if balance.get().can_be_pruned() {
+            let _ = balance.remove();
+        }
+
+        Ok(())
     }
 
     fn process_dispute(
@@ -103,6 +160,21 @@ impl Engine {
         tx_id: TxId,
     ) -> Result<(), ProcessChargebackError> {
         unimplemented!()
+    }
+}
+
+impl Balance {
+    fn available(&self) -> NonNegativeAmount {
+        let t: Amount = self.total.into();
+        let h: Amount = self.held.into();
+
+        NonNegativeAmount::try_from(t.saturating_sub(h)).unwrap_or_default()
+    }
+
+    fn can_be_pruned(&self) -> bool {
+        !self.is_locked
+            && Amount::from(self.held).signum() == 0
+            && Amount::from(self.total).signum() == 0
     }
 }
 

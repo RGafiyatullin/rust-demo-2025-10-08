@@ -8,6 +8,21 @@ use crate::{engine::Engine, input::Tx};
 #[test_case([
     t::d(1,1,"1.0"),
 ]; "case-01")]
+#[test_case([
+    t::w(1, 1, "1.0"),
+]; "case-02")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::w(1, 1, "0.9"),
+]; "case-03")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::w(1, 2, "0.5"),
+]; "case-04.a")]
+#[test_case([
+    t::d(1, 1, "1.0"),
+    t::w(1, 2, "1.0"),
+]; "case-04.b")]
 fn process_transactions(transactions: impl IntoIterator<Item = Tx>) {
     let case_name = std::thread::current()
         .name()
@@ -39,7 +54,7 @@ fn process_transactions(transactions: impl IntoIterator<Item = Tx>) {
 mod t {
     use crate::{
         input::{Tx, TxDeposit, TxKind, TxWithdrawal},
-        types::{Amount, ClientId, PositiveAmount, TxId},
+        types::{Amount, PositiveAmount},
     };
 
     pub(super) fn d(client_id: u16, tx_id: u32, amount_deposited: &str) -> Tx {
@@ -54,7 +69,9 @@ mod t {
         }
     }
 
-    pub(super) fn w(client_id: ClientId, tx_id: TxId, amount_withdrawn: &str) -> Tx {
+    pub(super) fn w(client_id: u16, tx_id: u32, amount_withdrawn: &str) -> Tx {
+        let client_id = client_id.into();
+        let tx_id = tx_id.into();
         let amount_withdrawn =
             PositiveAmount::try_from(Amount::from_str_exact(amount_withdrawn).unwrap()).unwrap();
         Tx {
@@ -64,21 +81,27 @@ mod t {
         }
     }
 
-    pub(crate) fn di(client_id: ClientId, tx_id: TxId) -> Tx {
+    pub(crate) fn di(client_id: u16, tx_id: u32) -> Tx {
+        let client_id = client_id.into();
+        let tx_id = tx_id.into();
         Tx {
             client_id,
             tx_id,
             kind: TxKind::Dispute,
         }
     }
-    pub(crate) fn re(client_id: ClientId, tx_id: TxId) -> Tx {
+    pub(crate) fn re(client_id: u16, tx_id: u32) -> Tx {
+        let client_id = client_id.into();
+        let tx_id = tx_id.into();
         Tx {
             client_id,
             tx_id,
             kind: TxKind::Resolve,
         }
     }
-    pub(crate) fn cb(client_id: ClientId, tx_id: TxId) -> Tx {
+    pub(crate) fn cb(client_id: u16, tx_id: u32) -> Tx {
+        let client_id = client_id.into();
+        let tx_id = tx_id.into();
         Tx {
             client_id,
             tx_id,

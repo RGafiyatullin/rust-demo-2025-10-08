@@ -1,0 +1,61 @@
+---
+source: src/engine/tests.rs
+expression: "(transcript, engine.balances.into_iter().collect::<BTreeMap<_,_>>(),)"
+---
+(
+    [
+        (
+            Tx {
+                client_id: ClientId(
+                    1,
+                ),
+                tx_id: TxId(
+                    1,
+                ),
+                kind: Deposit(
+                    TxDeposit {
+                        amount_deposited: PositiveAmount(
+                            1.0,
+                        ),
+                    },
+                ),
+            },
+            Ok(
+                (),
+            ),
+        ),
+        (
+            Tx {
+                client_id: ClientId(
+                    1,
+                ),
+                tx_id: TxId(
+                    2,
+                ),
+                kind: Withdrawal(
+                    TxWithdrawal {
+                        amount_withdrawn: PositiveAmount(
+                            0.5,
+                        ),
+                    },
+                ),
+            },
+            Ok(
+                (),
+            ),
+        ),
+    ],
+    {
+        ClientId(
+            1,
+        ): Balance {
+            total: NonNegativeAmount(
+                0.5,
+            ),
+            held: NonNegativeAmount(
+                0.0,
+            ),
+            is_locked: false,
+        },
+    },
+)

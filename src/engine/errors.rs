@@ -1,6 +1,6 @@
 use fixnum::ArithmeticError;
 
-use crate::types::TxId;
+use crate::types::{ClientId, NonNegativeAmount, TxId};
 
 #[derive(Debug, thiserror::Error)]
 pub enum ProcessTxError {
@@ -43,14 +43,46 @@ pub enum ProcessTxError {
 #[derive(Debug, thiserror::Error)]
 pub enum ProcessDepositError {
     #[error("{}", _0)]
-    DuplicateTxId(#[from] #[source] DuplicateTxId),
+    DuplicateTxId(
+        #[from]
+        #[source]
+        DuplicateTxId,
+    ),
 
     #[error("Arithmetic error: {}", _0)]
-    Overflow(#[from] #[source] ArithmeticError),
+    Overflow(
+        #[from]
+        #[source]
+        ArithmeticError,
+    ),
 }
 
 #[derive(Debug, thiserror::Error)]
-pub enum ProcessWithdrawalError {}
+pub enum ProcessWithdrawalError {
+    #[error("{}", _0)]
+    DuplicateTxId(
+        #[from]
+        #[source]
+        DuplicateTxId,
+    ),
+
+    #[error("Arithmetic error: {}", _0)]
+    Overflow(
+        #[from]
+        #[source]
+        ArithmeticError,
+    ),
+
+    #[error("{}", _0)]
+    AccountLocked(
+        #[from]
+        #[source]
+        AccountLocked,
+    ),
+
+    #[error("Insufficient funds: {} has {}", _0, _1)]
+    InsufficientFunds(ClientId, NonNegativeAmount),
+}
 
 #[derive(Debug, thiserror::Error)]
 pub enum ProcessDisputeError {}
@@ -61,7 +93,10 @@ pub enum ProcessResolveError {}
 #[derive(Debug, thiserror::Error)]
 pub enum ProcessChargebackError {}
 
-
 #[derive(Debug, thiserror::Error)]
 #[error("duplicate tx-id: {}", _0)]
 pub struct DuplicateTxId(pub TxId);
+
+#[derive(Debug, thiserror::Error)]
+#[error("account locked: {}", _0)]
+pub struct AccountLocked(pub ClientId);

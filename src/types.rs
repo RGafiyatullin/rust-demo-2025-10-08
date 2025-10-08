@@ -73,8 +73,9 @@ pub struct NonNegativeAmount(
     Amount,
 );
 
-
 mod non_negative_amount {
+    use std::fmt::{self, write};
+
     use super::*;
 
     #[derive(Debug, thiserror::Error)]
@@ -99,11 +100,18 @@ mod non_negative_amount {
             amount
         }
     }
+
+    impl fmt::Display for NonNegativeAmount {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            fmt::Display::fmt(&self.0, f)
+        }
+    }
 }
 
 mod positive_amount {
-    use super::*;
+    use std::fmt;
 
+    use super::*;
     #[derive(Debug, thiserror::Error)]
     #[error("expected positive amount; got: {}", _0)]
     pub struct NonPositiveAmount(Amount);
@@ -126,10 +134,13 @@ mod positive_amount {
             amount
         }
     }
+
+    impl fmt::Display for PositiveAmount {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            fmt::Display::fmt(&self.0, f)
+        }
+    }
 }
-
-
-
 
 mod client_id {
     use std::fmt;

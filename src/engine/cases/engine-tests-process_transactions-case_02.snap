@@ -1,0 +1,38 @@
+---
+source: src/engine/tests.rs
+expression: "(transcript, engine.balances.into_iter().collect::<BTreeMap<_,_>>(),)"
+---
+(
+    [
+        (
+            Tx {
+                client_id: ClientId(
+                    1,
+                ),
+                tx_id: TxId(
+                    1,
+                ),
+                kind: Withdrawal(
+                    TxWithdrawal {
+                        amount_withdrawn: PositiveAmount(
+                            1.0,
+                        ),
+                    },
+                ),
+            },
+            Err(
+                Withdrawal(
+                    InsufficientFunds(
+                        ClientId(
+                            1,
+                        ),
+                        NonNegativeAmount(
+                            0.0,
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    ],
+    {},
+)
