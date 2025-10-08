@@ -1,0 +1,8 @@
+---
+source: src/engine/tests.rs
+expression: "(transcript, engine.balances.into_iter().collect::<BTreeMap<_,_>>(),)"
+---
+(
+    [],
+    {},
+)

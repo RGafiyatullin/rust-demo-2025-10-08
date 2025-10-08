@@ -82,3 +82,6 @@ impl Engine {
         unimplemented!()
     }
 }
+
+#[cfg(test)]
+mod tests;
