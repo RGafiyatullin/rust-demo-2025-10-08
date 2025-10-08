@@ -11,9 +11,9 @@ expression: output
             tx_id: TxId(
                 1,
             ),
-            kind: Deposit(
-                TxDeposit {
-                    amount_deposited: PositiveAmount(
+            kind: Withdrawal(
+                TxWithdrawal {
+                    amount_withdrawn: PositiveAmount(
                         1.0,
                     ),
                 },
@@ -34,9 +34,9 @@ expression: output
             tx_id: TxId(
                 4,
             ),
-            kind: Deposit(
-                TxDeposit {
-                    amount_deposited: PositiveAmount(
+            kind: Withdrawal(
+                TxWithdrawal {
+                    amount_withdrawn: PositiveAmount(
                         1.0,
                     ),
                 },
@@ -57,9 +57,9 @@ expression: output
             tx_id: TxId(
                 7,
             ),
-            kind: Deposit(
-                TxDeposit {
-                    amount_deposited: PositiveAmount(
+            kind: Withdrawal(
+                TxWithdrawal {
+                    amount_withdrawn: PositiveAmount(
                         1.0,
                     ),
                 },
@@ -74,9 +74,9 @@ expression: output
             tx_id: TxId(
                 8,
             ),
-            kind: Deposit(
-                TxDeposit {
-                    amount_deposited: PositiveAmount(
+            kind: Withdrawal(
+                TxWithdrawal {
+                    amount_withdrawn: PositiveAmount(
                         1.0001,
                     ),
                 },
@@ -97,9 +97,9 @@ expression: output
             tx_id: TxId(
                 11,
             ),
-            kind: Deposit(
-                TxDeposit {
-                    amount_deposited: PositiveAmount(
+            kind: Withdrawal(
+                TxWithdrawal {
+                    amount_withdrawn: PositiveAmount(
                         111111111111111.1111,
                     ),
                 },
