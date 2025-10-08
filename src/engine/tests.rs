@@ -35,17 +35,21 @@ fn process_transactions(transactions: impl IntoIterator<Item = Tx>) {
 
     for tx in transactions {
         let outcome = engine.process_tx(tx.clone());
-        transcript.push((tx, outcome));
+        transcript.push((format!("{:?}", tx), outcome.map_err(|e| e.to_string())));
     }
 
     insta::with_settings!({
         snapshot_path => "cases",
         prepend_module_to_snapshot => false,
     }, {
-        insta::assert_debug_snapshot!(case_name,
+        insta::assert_yaml_snapshot!(case_name,
             (
                 transcript,
-                engine.balances.into_iter().collect::<BTreeMap<_,_>>(),
+                engine.balances.into_iter()
+                    .map(|(client_id, balance)|
+                        (client_id, (balance.available(), balance.held(), balance.total(), balance.is_locked()))
+                    )
+                    .collect::<BTreeMap<_,_>>(),
             ),
         );
     });

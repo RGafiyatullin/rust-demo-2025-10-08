@@ -1,8 +1,6 @@
 ---
 source: src/engine/tests.rs
-expression: "(transcript, engine.balances.into_iter().collect::<BTreeMap<_,_>>(),)"
+expression: "(transcript,\nengine.balances.into_iter().map(|(client_id, balance)|\n(client_id,\n(balance.available(), balance.held(), balance.total(),\nbalance.is_locked()))).collect::<BTreeMap<_,_>>(),)"
 ---
-(
-    [],
-    {},
-)
+- []
+- {}

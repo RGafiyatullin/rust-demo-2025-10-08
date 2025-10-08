@@ -180,6 +180,26 @@ impl Balance {
         NonNegativeAmount::try_from(t.saturating_sub(h)).unwrap_or_default()
     }
 
+    #[cfg(test)]
+    fn held(&self) -> NonNegativeAmount {
+        self.held
+    }
+
+    #[cfg(test)]
+    fn total(&self) -> NonNegativeAmount {
+        let available: Amount = self.available().into();
+        let held: Amount = self.held().into();
+        available
+            .saturating_add(held)
+            .try_into()
+            .expect("sum of two non-negatives")
+    }
+
+    #[cfg(test)]
+    fn is_locked(&self) -> bool {
+        self.is_locked
+    }
+
     fn can_be_pruned(&self) -> bool {
         !self.is_locked
             && Amount::from(self.held).signum() == 0
