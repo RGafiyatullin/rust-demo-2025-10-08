@@ -150,7 +150,8 @@ mod positive_amount {
     {
         use serde::de::Error as _;
 
-        let a: Amount = Deserialize::deserialize(deserializer)?;
+        let s: &str = Deserialize::deserialize(deserializer)?;
+        let a = Amount::from_str_exact(s).map_err(D::Error::custom)?;
         if a.signum() <= 0 {
             return Err(D::Error::custom(NonPositiveAmount(a)));
         }

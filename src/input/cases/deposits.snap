@@ -147,39 +147,43 @@ expression: output
             ),
         },
     ),
-    Ok(
-        Tx {
-            client_id: ClientId(
-                3,
-            ),
-            tx_id: TxId(
-                9,
-            ),
-            kind: Deposit(
-                TxDeposit {
-                    amount_deposited: PositiveAmount(
-                        1.0001,
+    Err(
+        Error(
+            Deserialize {
+                pos: Some(
+                    Position {
+                        byte: 257,
+                        line: 10,
+                        record: 9,
+                    },
+                ),
+                err: DeserializeError {
+                    field: None,
+                    kind: Message(
+                        "requested precision is too high",
                     ),
                 },
-            ),
-        },
+            },
+        ),
     ),
-    Ok(
-        Tx {
-            client_id: ClientId(
-                3,
-            ),
-            tx_id: TxId(
-                10,
-            ),
-            kind: Deposit(
-                TxDeposit {
-                    amount_deposited: PositiveAmount(
-                        1.0001,
+    Err(
+        Error(
+            Deserialize {
+                pos: Some(
+                    Position {
+                        byte: 289,
+                        line: 11,
+                        record: 10,
+                    },
+                ),
+                err: DeserializeError {
+                    field: None,
+                    kind: Message(
+                        "requested precision is too high",
                     ),
                 },
-            ),
-        },
+            },
+        ),
     ),
     Ok(
         Tx {
@@ -192,7 +196,7 @@ expression: output
             kind: Deposit(
                 TxDeposit {
                     amount_deposited: PositiveAmount(
-                        111111111111111.1,
+                        111111111111111.1111,
                     ),
                 },
             ),
@@ -211,7 +215,7 @@ expression: output
                 err: DeserializeError {
                     field: None,
                     kind: Message(
-                        "invalid value: floating point `1111111111111111.1`, expected number or string containing a fixed-point number",
+                        "too big integral",
                     ),
                 },
             },
