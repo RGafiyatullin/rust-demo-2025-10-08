@@ -4,6 +4,7 @@ use std::collections::{HashMap, hash_map::Entry::*};
 
 use crate::{
     input::{Tx, TxDeposit, TxKind, TxWithdrawal},
+    output::Account,
     types::{Amount, ClientId, NonNegativeAmount, PositiveAmount, TxId},
 };
 
@@ -45,6 +46,16 @@ enum TxState {
 }
 
 impl Engine {
+    pub fn accounts(&self) -> impl Iterator<Item = Account> + '_ {
+        self.balances.iter().map(|(&client_id, balances)| Account {
+            client_id,
+            available: balances.available(),
+            held: balances.held(),
+            total: balances.total(),
+            is_locked: balances.is_locked(),
+        })
+    }
+
     /// Process a single transaction.
     pub fn process_tx(&mut self, tx: Tx) -> Result<(), ProcessTxError> {
         let Tx {
