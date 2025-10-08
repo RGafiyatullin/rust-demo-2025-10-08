@@ -4,7 +4,11 @@ use test_case::test_case;
 
 use crate::input::Tx;
 
-#[test_case("deposits")] // FIXME: negative amounts, ignored precision problems!!!
+#[test_case("deposits")]
+#[test_case("withdrawals")]
+#[test_case("disputes")]
+#[test_case("resolves")]
+#[test_case("chargebacks")]
 fn parse_csv(case_name: &str) {
     let input_file = Path::new(file!())
         .parent()
@@ -18,7 +22,7 @@ fn parse_csv(case_name: &str) {
         .from_path(input_file)
         .expect("CsvReader::from_path");
     for decode_result in csv_reader.into_deserialize::<Tx>() {
-        output.push(decode_result);
+        output.push(decode_result.map_err(|e| e.to_string()));
     }
     insta::with_settings!({
         snapshot_path => "cases",

@@ -1,0 +1,62 @@
+---
+source: src/input/tests.rs
+expression: output
+---
+[
+    Ok(
+        Tx {
+            client_id: ClientId(
+                1,
+            ),
+            tx_id: TxId(
+                1,
+            ),
+            kind: Resolve,
+        },
+    ),
+    Ok(
+        Tx {
+            client_id: ClientId(
+                1,
+            ),
+            tx_id: TxId(
+                2,
+            ),
+            kind: Resolve,
+        },
+    ),
+    Err(
+        "CSV deserialize error: record 3 (line: 4, byte: 81): field 1: invalid digit found in string",
+    ),
+    Ok(
+        Tx {
+            client_id: ClientId(
+                65535,
+            ),
+            tx_id: TxId(
+                4,
+            ),
+            kind: Resolve,
+        },
+    ),
+    Err(
+        "CSV deserialize error: record 5 (line: 6, byte: 125): field 1: number too large to fit in target type",
+    ),
+    Err(
+        "CSV deserialize error: record 6 (line: 7, byte: 147): field 2: invalid digit found in string",
+    ),
+    Ok(
+        Tx {
+            client_id: ClientId(
+                2,
+            ),
+            tx_id: TxId(
+                4294967295,
+            ),
+            kind: Resolve,
+        },
+    ),
+    Err(
+        "CSV deserialize error: record 8 (line: 9, byte: 201): field 2: number too large to fit in target type",
+    ),
+]
